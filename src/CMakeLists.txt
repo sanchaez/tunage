@@ -1,11 +1,17 @@
 find_package(Qt5 COMPONENTS Core Quick REQUIRED)
 
+add_library(AudioEngine INTERFACE)
+
+target_sources(AudioEngine INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/audio_engine/decoder.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/audio_engine/playback.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/audio_engine/ringbuffer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/audio_engine/spectrumanalyzer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/audio_engine/types.h)
+
+target_include_directories(AudioEngine INTERFACE include/audio_engine)
+
 set(APP_SOURCES
-    audio_engine/decoder.h
-    audio_engine/playback.h
-    audio_engine/ringbuffer.h
-    audio_engine/spectrumanalyzer.h
-    audio_engine/types.h
     applicationcontroller.cpp
     applicationcontroller.h
     visualisationrenderer.cpp
@@ -40,4 +46,5 @@ target_link_libraries(${PROJECT_NAME}
     portaudio_static
     kissfft_static
     CTPL
+    AudioEngine
 )

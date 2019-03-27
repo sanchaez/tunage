@@ -31,7 +31,16 @@ endif()
 
 # main app
 set(APP_SOURCES_DIR src)
+set(APP_INSTALL_DIR ${CMAKE_BINARY_DIR}/tunage)
 add_subdirectory(${APP_SOURCES_DIR})
+
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION ${APP_INSTALL_DIR}
+    LIBRARY DESTINATION ${APP_INSTALL_DIR}/lib
+    ARCHIVE DESTINATION ${APP_INSTALL_DIR}/lib/static)
+
+install(DIRECTORY sample shaders
+    DESTINATION ${APP_INSTALL_DIR})
 
 # external projects
 set(EXTERNAL_PROJECTS_DIR external)
