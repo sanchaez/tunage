@@ -1,4 +1,4 @@
-find_package(Qt5 COMPONENTS Core Quick Multimedia REQUIRED)
+find_package(Qt5 COMPONENTS Core Quick REQUIRED)
 
 set(APP_SOURCES
     audio_engine/decoder.h
