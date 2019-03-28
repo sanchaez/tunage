@@ -1,0 +1,69 @@
+os: linux
+dist: xenial
+
+matrix:
+  include:
+    - name: "Qt5.11 GCC 8"   
+      language: cpp
+      compiler: gcc
+      addons:
+        apt:
+          sources: 
+          - ubuntu-toolchain-r-test
+          - sourceline: 'ppa:beineri/opt-qt-5.11.3-xenial'
+          - sourceline: "deb http://archive.ubuntu.com/ubuntu/ xenial universe"
+          - sourceline: "deb http://archive.ubuntu.com/ubuntu/ xenial-backports universe"
+          packages:
+          - gcc-8
+          - g++-8
+          - mesa-common-dev
+          - libgl1-mesa-dev
+          - ninja-build
+          - qt511base
+          - qt511quickcontrols2
+          - qt511multimedia
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+        
+    - name: "Qt5.12 GCC 8"   
+      language: cpp
+      compiler: gcc
+      addons:
+        apt:
+          sources: 
+          - ubuntu-toolchain-r-test
+          - sourceline: 'ppa:beineri/opt-qt-5.12.1-xenial'
+          - sourceline: "deb http://archive.ubuntu.com/ubuntu/ xenial universe"
+          - sourceline: "deb http://archive.ubuntu.com/ubuntu/ xenial-backports universe"
+          packages:
+          - gcc-8
+          - g++-8
+          - mesa-common-dev
+          - libgl1-mesa-dev
+          - ninja-build
+          - qt512base
+          - qt512quickcontrols2
+          - qt512multimedia
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+
+# we require CMake 3.10 and up, so install binaries from official website
+before_install:
+- |
+  cd $HOME
+  wget https://cmake.org/files/v3.10/cmake-3.10.3-Linux-x86_64.sh
+  sudo sh cmake-3.10.3-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir
+
+before_script:
+  - eval "${MATRIX_EVAL}" 
+  - $CC --version
+  - $CXX --version
+  - cmake --version  
+  - mkdir .build && cd .build
+  - pwd
+  - cmake -GNinja "$TRAVIS_BUILD_DIR" -DCMAKE_BUILD_TYPE=Release
+
+script: 
+  - ninja -v
+  
+cache: apt
