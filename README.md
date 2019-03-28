@@ -9,7 +9,6 @@ The project is inspired by WMP and Winamp visualizers and is aimed to bring that
 Project is at it's early stages and everyone is welcome to contribute!
 
 # Features
-
 - Cross-platform
 - Basic audio codec support
 - Basic media player functionality like media controls and playlist
@@ -17,9 +16,8 @@ Project is at it's early stages and everyone is welcome to contribute!
 - GLSL shaders for music visualization
 
 # Building
-
-For building Tunage you need Qt 5.11, OpenGL, CMake 3.10 and either MSVC 15.9 or GCC 4.9.1 or higher.
-Depending on the platform, you may also need ALSA/ASIO/WASAPI. Other external libraries are included in the build.
+For building Tunage you need OpenGL, Qt 5.11, CMake 3.10 and either MSVC 15.9 or GCC 8.
+Depending on the platform, you may also need ALSA/ASIO/WASAPI. Other external libraries are included in the source.
 
 # License
 This project is licensed under the GNU GPL v3.0+ - see the LICENSE.md file for details.
