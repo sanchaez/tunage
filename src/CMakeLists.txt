@@ -48,3 +48,15 @@ target_link_libraries(${PROJECT_NAME}
     CTPL
     AudioEngine
 )
+
+# install
+set(APP_INSTALL_DIR ${CMAKE_BINARY_DIR}/tunage)
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION ${APP_INSTALL_DIR}
+    LIBRARY DESTINATION ${APP_INSTALL_DIR}/lib
+    ARCHIVE DESTINATION ${APP_INSTALL_DIR}/lib/static)
+
+install(DIRECTORY
+    ${CMAKE_SOURCE_DIR}/sample
+    ${CMAKE_SOURCE_DIR}/shaders
+    DESTINATION ${APP_INSTALL_DIR})
