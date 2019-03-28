@@ -1,4 +1,4 @@
-# Tunage
+# Tunage [![travis.badge]][travis.link]
 A cross-platform media player that supports visualizing audio through GLSL shaders.
 The project is inspired by WMP and Winamp visualizers and is aimed to bring that experience to multiple platforms.
 
@@ -30,3 +30,6 @@ Tunage uses the following libraries aside from Qt:
 - [KissFFT](https://github.com/mborgerding/kissfft)
 - [TagLib](https://github.com/taglib/taglib)
 - [CTPL](https://github.com/vit-vit/CTPL)
+
+[travis.badge]: https://travis-ci.com/sanchaez/tunage.svg?branch=master
+[travis.link]: https://travis-ci.com/sanchaez/tunage
