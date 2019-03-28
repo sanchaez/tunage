@@ -21,7 +21,6 @@ matrix:
           - ninja-build
           - qt511base
           - qt511quickcontrols2
-          - qt511multimedia
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
         
@@ -43,7 +42,6 @@ matrix:
           - ninja-build
           - qt512base
           - qt512quickcontrols2
-          - qt512multimedia
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
 
