@@ -5,10 +5,22 @@
 
 constexpr auto default_shader = "shaders/waveform.glsl";
 
-Visualisation::Visualisation() : m_renderer(nullptr), m_spectrumData(1024), m_shader(default_shader)
+std::vector<GLfloat> Visualisation::readFromBufferToGL(std::shared_ptr<RingBufferT<double>> &buffer)
+{
+    std::vector<double> result(buffer->getSize());
+    buffer->read(result.data(),
+                 buffer->getAvailableRead());
+
+    return std::vector<GLfloat>(result.begin(), result.end());
+}
+
+Visualisation::Visualisation() : m_renderer(nullptr), m_shader(default_shader)
 {
     connect(this, &QQuickItem::windowChanged,
             this, &Visualisation::handleWindowChanged);
+    connect(&m_updateTimer, &QTimer::timeout,
+            this, &Visualisation::refresh);
+    m_updateTimer.start(50);
 }
 
 void Visualisation::sync()
@@ -20,9 +32,12 @@ void Visualisation::sync()
     }
     m_renderer->setViewportSize(window()->size() * window()->devicePixelRatio());
     m_renderer->setWindow(window());
-    m_renderer->setWaveformData(m_waveformData);
-    m_renderer->setSpectrumData(m_spectrumData);
     m_renderer->setShaderPath(m_shader);
+
+    if(m_waveformBuffer && m_waveformBuffer->getAvailableRead())
+        m_renderer->setWaveformData(readFromBufferToGL(m_waveformBuffer));
+    if(m_spectrumBuffer && m_spectrumBuffer->getAvailableRead())
+        m_renderer->setSpectrumData(readFromBufferToGL(m_spectrumBuffer));
 }
 
 void Visualisation::cleanup()
@@ -33,16 +48,20 @@ void Visualisation::cleanup()
     }
 }
 
-void Visualisation::setSpectrumData(const QVector<qreal> &data) {
-    m_spectrumData = data;
-    if (window())
-        window()->update();
+void Visualisation::setSpectrumBuffer(const std::shared_ptr<RingBufferT<double> > &buffer)
+{
+    m_spectrumBuffer = buffer;
 }
 
-void Visualisation::setWaveformData(const QVector<qreal> &data) {
-    m_waveformData = data;
-    //if (window())
-    //   window()->update();
+void Visualisation::setWaveformBuffer(const std::shared_ptr<RingBufferT<double> > &buffer)
+{
+    m_waveformBuffer = buffer;
+}
+
+void Visualisation::refresh()
+{
+    //update();
+    window()->update();
 }
 
 void Visualisation::handleWindowChanged(QQuickWindow *win)
@@ -53,7 +72,6 @@ void Visualisation::handleWindowChanged(QQuickWindow *win)
         win->setClearBeforeRendering(false);
     }
 }
-
 
 VisualisationRenderer::VisualisationRenderer()
     : m_updateShader(false), m_shaderPath(default_shader) {
@@ -72,6 +90,28 @@ VisualisationRenderer::~VisualisationRenderer() {
     //settings.beginGroup("viz");
     //settings.setValue("shader", m_shaderPath);
     //settings.endGroup();
+}
+
+void VisualisationRenderer::setViewportSize(const QSize &size) {
+    m_viewportSize = size;
+}
+
+void VisualisationRenderer::setWindow(QQuickWindow *window) {
+    m_window = window;
+}
+
+void VisualisationRenderer::setSpectrumData(const std::vector<GLfloat> &data) {
+    if(!data.empty()) {
+        qDebug() << "Received spectrum data";
+        m_spectrumData = data;
+    }
+}
+
+void VisualisationRenderer::setWaveformData(const std::vector<GLfloat> &data) {
+    if(!data.empty()) {
+        qDebug() << "Received waveform data";
+        m_waveformData = data;
+    }
 }
 
 /* NOTE: this expects OpenGL shader to have:
@@ -177,7 +217,6 @@ void VisualisationRenderer::swapShaders()
     }
 }
 
-
 void VisualisationRenderer::setShaderPath(const QUrl &path) {
     if(path == m_shaderPath) return;
 
@@ -186,7 +225,6 @@ void VisualisationRenderer::setShaderPath(const QUrl &path) {
 
     m_updateShader = true;
 }
-
 
 QString VisualisationRenderer::shaderPath() const
 {

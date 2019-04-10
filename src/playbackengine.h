@@ -28,8 +28,6 @@ class PlaybackEngine : public QObject
     audioengine::Decoder m_decoder;
     audioengine::SpectrumAnalyzer m_spectrum;
 
-    QVector<qreal> m_spectrumData, m_waveformData;
-
     std::mutex m_spectrum_mtx, m_waveform_mtx;
 
     void writeSettings();
@@ -79,20 +77,16 @@ public:
     bool isPlaying() const;
 
     /**
-     * @brief spectrumData
-     * @return Spectrum data from spectrum analyzer.
-     *
-     * Uses internal mutex for synchronization.
+     * @brief getSpectrumDataBuffer
+     * @return ring buffer with FFT data.
      */
-    QVector<qreal> spectrumData();
+    std::shared_ptr<RingBufferT<double>> getSpectrumDataBuffer();
 
     /**
-     * @brief waveformData
-     * @return Waveform data from spectrum analyzer.
-     *
-     * Uses internal mutex for synchronization.
+     * @brief getSpectrumDataBuffer
+     * @return ring buffer with a waveform.
      */
-    QVector<qreal> waveformData();
+    std::shared_ptr<RingBufferT<double>> getWaveformDataBuffer();
 
     /**
      * @brief currentFile
@@ -197,7 +191,7 @@ signals:
     void volumeChanged();
     void fileEnded();
 
-    void spectrumChanged();
+    void spectrumDataChanged();
 
     void error(const QString& what);
 };

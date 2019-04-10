@@ -142,10 +142,9 @@ ApplicationWindow {
 
     Visualisation {
         id: visualizer
+        objectName: "Visualisation"
         width: window.width
         height: window.height
-        waveform: appController.waveform
-        spectrum: appController.spectrum
 
         MouseArea {
             anchors.fill: parent

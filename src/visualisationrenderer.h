@@ -7,10 +7,13 @@
 #include <QOpenGLTexture>
 #include <QQuickWindow>
 #include <QTime>
+#include <QTimer>
 #include <QSettings>
 
 #include <memory>
 #include <mutex>
+
+#include "audio_engine/ringbuffer.h"
 
 class VisualisationRenderer : public QObject, protected QOpenGLFunctions
 {
@@ -20,19 +23,11 @@ public:
     VisualisationRenderer();
     ~VisualisationRenderer();
 
-    void setViewportSize(const QSize &size) {
-        m_viewportSize = size;
-    }
+    void setViewportSize(const QSize &size);
 
-    void setWindow(QQuickWindow *window) { m_window = window; }
-    void setSpectrumData(const QVector<qreal>& data) {
-        auto v = data.toStdVector();
-        m_spectrumData = std::vector<GLfloat>(v.begin(), v.end());
-    }
-    void setWaveformData(const QVector<qreal>& data) {
-        auto v = data.toStdVector();
-        m_waveformData = std::vector<GLfloat>(v.begin(), v.end());
-    }
+    void setWindow(QQuickWindow *window);
+    void setSpectrumData(const std::vector<GLfloat>& data);
+    void setWaveformData(const std::vector<GLfloat>& data);
 
     void setShaderPath(const QUrl& path);
 
@@ -65,9 +60,11 @@ private:
 class Visualisation : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(QVector<qreal> spectrum MEMBER m_spectrumData WRITE setSpectrumData)
-    Q_PROPERTY(QVector<qreal> waveform MEMBER m_waveformData WRITE setWaveformData)
+    Q_PROPERTY(std::shared_ptr<RingBufferT<double>> spectrumBuffer MEMBER m_spectrumBuffer WRITE setSpectrumBuffer)
+    Q_PROPERTY(std::shared_ptr<RingBufferT<double>> waveformBuffer MEMBER m_waveformBuffer WRITE setWaveformBuffer)
     Q_PROPERTY(QString currentShader MEMBER m_shader)
+
+    std::vector<GLfloat> readFromBufferToGL(std::shared_ptr<RingBufferT<double>>& buffer);
 
 public:
     Visualisation();
@@ -75,18 +72,20 @@ public:
 public slots:
     void sync();
     void cleanup();
-    void setSpectrumData(const QVector<qreal>& data);
-    void setWaveformData(const QVector<qreal>& data);
+    void setSpectrumBuffer(const std::shared_ptr<RingBufferT<double>>& buffer);
+    void setWaveformBuffer(const std::shared_ptr<RingBufferT<double>>& buffer);
 
+    void refresh();
 private slots:
     void handleWindowChanged(QQuickWindow *win);
 
 private:
     VisualisationRenderer *m_renderer;
-    QVector<qreal> m_spectrumData;
-    QVector<qreal> m_waveformData;
+    std::shared_ptr<RingBufferT<double>> m_spectrumBuffer;
+    std::shared_ptr<RingBufferT<double>> m_waveformBuffer;
 
     QString m_shader;
+    QTimer m_updateTimer;
 };
 
 #endif // VISUALISATION_RENDERER_H

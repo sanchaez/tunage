@@ -41,7 +41,7 @@ int ApplicationController::position() const
 int ApplicationController::duration() const
 {
     qDebug() << "duration() ->" << m_playlistModel->currentFileInfo().duration;// m_soundEngine->duration();
-    return m_playlistModel->currentFileInfo().duration ;//m_soundEngine->duration();
+    return m_playlistModel->currentFileInfo().duration;//m_soundEngine->duration();
 }
 
 QString ApplicationController::artist() const
@@ -68,14 +68,14 @@ QString ApplicationController::coverUrl() const
     return m_playlistModel->currentFileInfo().coverUrl;
 }
 
-QVector<qreal> ApplicationController::spectrum()
+std::shared_ptr<RingBufferT<double>> ApplicationController::spectrumBuffer()
 {
-    return m_soundEngine->spectrumData();
+    return m_soundEngine->getSpectrumDataBuffer();
 }
 
-QVector<qreal> ApplicationController::waveform()
+std::shared_ptr<RingBufferT<double>> ApplicationController::waveformBuffer()
 {
-    return m_soundEngine->waveformData();
+    return m_soundEngine->getWaveformDataBuffer();
 }
 
 void ApplicationController::play(bool isSetPlay)
@@ -287,11 +287,11 @@ void ApplicationController::updateCacheNearIndex(int oldIndex)
 
 ApplicationController::ApplicationController(QObject *parent)
     : QObject(parent),
-      m_soundEngine(new PlaybackEngine()),
-      m_playlistModel(new PlaylistItemModel())
+      m_playlistModel(new PlaylistItemModel()),
+      m_soundEngine(new PlaybackEngine())
 {
     // interconnect
-    QObject::connect(m_soundEngine, &PlaybackEngine::spectrumChanged,
+    QObject::connect(m_soundEngine, &PlaybackEngine::spectrumDataChanged,
                      this, &ApplicationController::spectrumChanged,
                      Qt::QueuedConnection);
 

@@ -18,26 +18,10 @@ PlaybackEngine::PlaybackEngine()
       m_isReady(false),
       m_playback(),
       m_decoder(),
-      m_spectrum(m_decoder.visualizer_buffer()),
-      m_spectrumData(m_spectrum.fft_avg_out->getSize()),
-      m_waveformData(m_spectrum.waveform_avg_out->getSize())
+      m_spectrum(m_decoder.visualizer_buffer())
 {
     m_spectrum.set_update_callback([this]() {
-        {
-            std::unique_lock<std::mutex> lock(m_spectrum_mtx);
-
-            m_spectrum.fft_avg_out->read(m_spectrumData.data(),
-                                         m_spectrum.fft_avg_out->getAvailableRead());
-        }
-
-        {
-            std::unique_lock<std::mutex> lock(m_waveform_mtx);
-
-            m_spectrum.waveform_avg_out->read(m_waveformData.data(),
-                                              m_spectrum.waveform_avg_out->getAvailableRead());
-        }
-
-        emit spectrumChanged();
+        emit spectrumDataChanged();
     });
 
     m_playback.set_playback_buffer(m_decoder.sample_buffer());
@@ -61,18 +45,6 @@ PlaybackEngine::~PlaybackEngine()
 {
     // save settings on exit
     writeSettings();
-}
-
-QVector<qreal> PlaybackEngine::spectrumData()
-{
-    std::unique_lock<std::mutex> lock(m_spectrum_mtx);
-    return m_spectrumData;
-}
-
-QVector<qreal> PlaybackEngine::waveformData()
-{
-    std::unique_lock<std::mutex> lock(m_waveform_mtx);
-    return m_waveformData;
 }
 
 QString PlaybackEngine::currentFile() const
@@ -109,7 +81,6 @@ void PlaybackEngine::playbackStreamRestart()
                                  m_decoder.buffer_size());
     }
 }
-
 
 void PlaybackEngine::play(bool isSetPlay)
 {
@@ -250,6 +221,15 @@ int PlaybackEngine::volume() const
 bool PlaybackEngine::isPlaying() const
 {
     return m_decoder.playing();
+}
+
+std::shared_ptr<RingBufferT<double>> PlaybackEngine::getSpectrumDataBuffer()
+{
+    return m_spectrum.fft_avg_out;
+}
+std::shared_ptr<RingBufferT<double>> PlaybackEngine::getWaveformDataBuffer()
+{
+    return m_spectrum.waveform_avg_out;
 }
 
 bool PlaybackEngine::isMuted() const

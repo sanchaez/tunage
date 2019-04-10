@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) try
 
     // app settings
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QCoreApplication::setAttribute(Qt::AA_DisableShaderDiskCache);
+    //QCoreApplication::setAttribute(Qt::AA_DisableShaderDiskCache);
     QCoreApplication::setOrganizationName("Alexander Sh.");
     QCoreApplication::setApplicationName("Tunage");
 
@@ -50,7 +50,21 @@ int main(int argc, char *argv[]) try
     if (engine.rootObjects().isEmpty())
         return -1;
 
-    // actions after QML exec
+    // connect buffers
+    Visualisation *visualizer = nullptr;
+    for(QObject *root : engine.rootObjects()) {
+        auto* ptr = root->findChild<QObject*>("Visualisation");
+        if(ptr) {
+            qDebug() << "visualizer found";
+            visualizer = qobject_cast<Visualisation*>(ptr);
+            break;
+        }
+    }
+    if(visualizer) {
+        qDebug() << "buffers set";
+        visualizer->setSpectrumBuffer(appController.spectrumBuffer());
+        visualizer->setWaveformBuffer(appController.waveformBuffer());
+    }
 
     return app.exec();
 }

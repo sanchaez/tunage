@@ -23,8 +23,8 @@ class ApplicationController : public QObject
     Q_PROPERTY(QString album READ album NOTIFY metadataChanged)
     Q_PROPERTY(QString coverUrl READ coverUrl NOTIFY metadataChanged)
 
-    Q_PROPERTY(QVector<qreal> spectrum READ spectrum NOTIFY spectrumChanged)
-    Q_PROPERTY(QVector<qreal> waveform READ waveform NOTIFY spectrumChanged)
+    Q_PROPERTY(std::shared_ptr<RingBufferT<double>> spectrumBuffer READ spectrumBuffer NOTIFY spectrumChanged)
+    Q_PROPERTY(std::shared_ptr<RingBufferT<double>> waveformBuffer READ waveformBuffer NOTIFY spectrumChanged)
 
     Q_PROPERTY(PlaylistItemModel* playlist MEMBER m_playlistModel NOTIFY modelChanged)
 
@@ -57,8 +57,8 @@ public:
     QString album() const;
     QString coverUrl() const;
 
-    QVector<qreal> spectrum();
-    QVector<qreal> waveform();
+    std::shared_ptr<RingBufferT<double>> spectrumBuffer();
+    std::shared_ptr<RingBufferT<double>> waveformBuffer();
 
 signals:
     void playbackStatusChanged(bool isSetPlay);
@@ -67,6 +67,7 @@ signals:
     void durationChanged();
 
     void metadataChanged();
+
     void spectrumChanged();
 
     void loadingFileStarted();
