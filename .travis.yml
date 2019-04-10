@@ -3,12 +3,12 @@ dist: xenial
 
 matrix:
   include:
-    - name: "Qt5.11 GCC 8"   
+    - name: "Qt5.11 GCC 8"
       language: cpp
       compiler: gcc
       addons:
         apt:
-          sources: 
+          sources:
           - ubuntu-toolchain-r-test
           - sourceline: 'ppa:beineri/opt-qt-5.11.3-xenial'
           - sourceline: "deb http://archive.ubuntu.com/ubuntu/ xenial universe"
@@ -23,13 +23,13 @@ matrix:
           - qt511quickcontrols2
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-        
-    - name: "Qt5.12 GCC 8"   
+
+    - name: "Qt5.12 GCC 8"
       language: cpp
       compiler: gcc
       addons:
         apt:
-          sources: 
+          sources:
           - ubuntu-toolchain-r-test
           - sourceline: 'ppa:beineri/opt-qt-5.12.1-xenial'
           - sourceline: "deb http://archive.ubuntu.com/ubuntu/ xenial universe"
@@ -53,15 +53,15 @@ before_install:
   sudo sh cmake-3.10.3-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir
 
 before_script:
-  - eval "${MATRIX_EVAL}" 
+  - eval "${MATRIX_EVAL}"
   - $CC --version
   - $CXX --version
-  - cmake --version  
+  - cmake --version
   - mkdir .build && cd .build
   - pwd
   - cmake -GNinja "$TRAVIS_BUILD_DIR" -DCMAKE_BUILD_TYPE=Release
 
-script: 
+script:
   - ninja -v
-  
+
 cache: apt
